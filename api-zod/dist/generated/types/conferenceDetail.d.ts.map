@@ -1,1 +1,0 @@
-{"version":3,"file":"conferenceDetail.d.ts","sourceRoot":"","sources":["../../../src/generated/types/conferenceDetail.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAC7C,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAE/C,MAAM,MAAM,gBAAgB,GAAG,UAAU,GAAG;IAC1C,UAAU,CAAC,EAAE,SAAS,EAAE,CAAC;CAC1B,CAAC"}
