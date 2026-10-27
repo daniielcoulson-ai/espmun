@@ -1,0 +1,431 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: conferences
+    description: Conference records and publication
+  - name: public
+    description: Publicly visible website content
+  - name: committees
+    description: Conference committees
+  - name: applications
+    description: Delegate applications
+  - name: news
+    description: News articles
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [conferences]
+      summary: Get live administrative dashboard totals
+      responses:
+        "200":
+          description: Dashboard totals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+  /conferences:
+    get:
+      operationId: listConferences
+      tags: [conferences]
+      summary: List conferences for authorized administrators
+      responses:
+        "200":
+          description: Conference list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conference"
+    post:
+      operationId: createConference
+      tags: [conferences]
+      summary: Create a conference draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConferenceInput"
+      responses:
+        "201":
+          description: Created conference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conference"
+  /conferences/{id}:
+    get:
+      operationId: getConference
+      tags: [conferences]
+      summary: Get an administrative conference record
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conference record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conference"
+    patch:
+      operationId: updateConference
+      tags: [conferences]
+      summary: Update a conference
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConferenceUpdate"
+      responses:
+        "200":
+          description: Updated conference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conference"
+    delete:
+      operationId: archiveConference
+      tags: [conferences]
+      summary: Archive a conference
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Archived
+  /conferences/{id}/publish:
+    patch:
+      operationId: setConferencePublished
+      tags: [conferences]
+      summary: Publish or unpublish a conference
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicationInput"
+      responses:
+        "200":
+          description: Updated conference
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conference"
+  /public/conferences:
+    get:
+      operationId: listPublicConferences
+      tags: [public]
+      summary: List published conferences
+      responses:
+        "200":
+          description: Public conferences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conference"
+  /public/conferences/{slug}:
+    get:
+      operationId: getPublicConference
+      tags: [public]
+      summary: Get a published conference page
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Public conference page
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConferenceDetail"
+  /conferences/{id}/committees:
+    get:
+      operationId: listCommittees
+      tags: [committees]
+      summary: List committees for a conference
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Committee list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Committee"
+    post:
+      operationId: createCommittee
+      tags: [committees]
+      summary: Create a committee
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommitteeInput"
+      responses:
+        "201":
+          description: Created committee
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Committee"
+  /applications:
+    post:
+      operationId: submitApplication
+      tags: [applications]
+      summary: Submit and persist a delegate application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationInput"
+      responses:
+        "201":
+          description: Stored application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApplicationReceipt"
+  /admin/applications:
+    get:
+      operationId: listApplications
+      tags: [applications]
+      summary: List applications for authorized administrators
+      responses:
+        "200":
+          description: Application list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Application"
+  /admin/applications/{id}:
+    patch:
+      operationId: updateApplication
+      tags: [applications]
+      summary: Update an application status
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApplicationStatusInput"
+      responses:
+        "200":
+          description: Updated application
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Application"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    Conference:
+      type: object
+      required: [id, name, slug, level, city, region, startDate, endDate, status, updatedAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        level: { type: string, enum: [Local, Provincial, Regional, National, International] }
+        city: { type: string }
+        region: { type: string }
+        venue: { type: ["string", "null"] }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        applicationDeadline: { type: ["string", "null"], format: date }
+        theme: { type: ["string", "null"] }
+        description: { type: ["string", "null"] }
+        fee: { type: ["number", "null"] }
+        status: { type: string, enum: [draft, published, archived] }
+        updatedAt: { type: string, format: date-time }
+    ConferenceDetail:
+      allOf:
+        - $ref: "#/components/schemas/Conference"
+        - type: object
+          properties:
+            committees:
+              type: array
+              items: { $ref: "#/components/schemas/Committee" }
+    ConferenceInput:
+      type: object
+      required: [name, level, city, region, startDate, endDate]
+      properties:
+        name: { type: string, minLength: 2 }
+        level: { type: string, enum: [Local, Provincial, Regional, National, International] }
+        city: { type: string, minLength: 1 }
+        region: { type: string, minLength: 1 }
+        venue: { type: ["string", "null"] }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        applicationDeadline: { type: ["string", "null"], format: date }
+        theme: { type: ["string", "null"] }
+        description: { type: ["string", "null"] }
+        fee: { type: ["number", "null"] }
+    ConferenceUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 2 }
+        level: { type: string, enum: [Local, Provincial, Regional, National, International] }
+        city: { type: string }
+        region: { type: string }
+        venue: { type: ["string", "null"] }
+        startDate: { type: string, format: date }
+        endDate: { type: string, format: date }
+        applicationDeadline: { type: ["string", "null"], format: date }
+        theme: { type: ["string", "null"] }
+        description: { type: ["string", "null"] }
+        fee: { type: ["number", "null"] }
+    PublicationInput:
+      type: object
+      required: [published]
+      properties:
+        published: { type: boolean }
+    Committee:
+      type: object
+      required: [id, conferenceId, name, topic, description, chair, studyGuideUrl, published]
+      properties:
+        id: { type: integer }
+        conferenceId: { type: integer }
+        name: { type: string }
+        topic: { type: ["string", "null"] }
+        description: { type: ["string", "null"] }
+        chair: { type: ["string", "null"] }
+        studyGuideUrl: { type: ["string", "null"] }
+        published: { type: boolean }
+    CommitteeInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string, minLength: 2 }
+        topic: { type: ["string", "null"] }
+        description: { type: ["string", "null"] }
+        chair: { type: ["string", "null"] }
+        studyGuideUrl: { type: ["string", "null"] }
+    Dashboard:
+      type: object
+      required: [conferenceTotal, draftTotal, publishedTotal, applicationTotal, byLevel, upcoming]
+      properties:
+        conferenceTotal: { type: integer }
+        draftTotal: { type: integer }
+        publishedTotal: { type: integer }
+        applicationTotal: { type: integer }
+        byLevel:
+          type: object
+          required: [Local, Provincial, Regional, National, International]
+          properties:
+            Local: { type: integer }
+            Provincial: { type: integer }
+            Regional: { type: integer }
+            National: { type: integer }
+            International: { type: integer }
+        upcoming:
+          type: array
+          items: { $ref: "#/components/schemas/Conference" }
+    ApplicationInput:
+      type: object
+      required: [conferenceId, fullName, email, applicantType]
+      properties:
+        conferenceId: { type: integer }
+        fullName: { type: string, minLength: 2 }
+        email: { type: string, format: email }
+        applicantType: { type: string, enum: [delegate, advisor, observer] }
+        school: { type: ["string", "null"] }
+        message: { type: ["string", "null"] }
+    ApplicationReceipt:
+      type: object
+      required: [id, status, receivedAt]
+      properties:
+        id: { type: integer }
+        status: { type: string }
+        receivedAt: { type: string, format: date-time }
+    Application:
+      allOf:
+        - $ref: "#/components/schemas/ApplicationInput"
+        - type: object
+          required: [id, status, receivedAt]
+          properties:
+            id: { type: integer }
+            status: { type: string, enum: [submitted, under_review, accepted, waitlisted, rejected] }
+            receivedAt: { type: string, format: date-time }
+    ApplicationStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [submitted, under_review, accepted, waitlisted, rejected] }
+
